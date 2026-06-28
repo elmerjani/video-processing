@@ -22,3 +22,9 @@
 *.log
 *.pem
 *.key
+
+# Local architecture design sources
+docs/
+
+# Terraform-generated Lambda packages
+infra/modules/s3_upload_notification/build/

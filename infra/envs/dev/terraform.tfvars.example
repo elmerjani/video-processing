@@ -1,0 +1,47 @@
+project_name = "video-processing-dev"
+aws_region   = "eu-central-1"
+
+database_name     = "videoprocessing"
+database_username = "video_app"
+image_tag         = "latest"
+
+# Enable this to build the API image in AWS CodeBuild, push it to ECR, and deploy it to ECS.
+# Terraform creates one shared GitHub connection for the enabled image pipelines.
+# Authorize the pending connection once in the AWS console after the first apply.
+# enable_api_pipeline                  = true
+# api_pipeline_github_owner            = "your-github-user-or-org"
+# api_pipeline_github_repository       = "your-github-repository"
+# api_pipeline_github_branch           = "main"
+# enable_worker_pipeline                  = true
+# worker_pipeline_github_owner            = "your-github-user-or-org"
+# worker_pipeline_github_repository       = "your-github-repository"
+# worker_pipeline_github_branch           = "main"
+
+# Production-style network defaults: private ECS, internal ALB, API Gateway VPC Link,
+# WAF on the ALB, VPC endpoints instead of NAT, and force-destroy for teardown.
+# ecs_assign_public_ip                = false
+# api_gateway_stage_name              = "dev"
+# enable_waf                          = true
+# waf_rate_limit                      = 1000
+# s3_force_destroy                    = true
+# ecr_force_delete                    = true
+# pipeline_artifact_bucket_force_destroy = true
+
+# Cost controls: defaults use the smallest Fargate task size, run on Fargate Spot,
+# suspend S3 versioning, and keep logs for one day.
+# ecs_capacity_provider               = "FARGATE_SPOT"
+# api_cpu                             = 256
+# api_memory                          = 512
+# worker_cpu                          = 256
+# worker_memory                       = 512
+# worker_desired_count                = 0
+# db_instance_class                   = "db.t4g.micro"
+# db_allocated_storage                = 20
+# db_backup_retention_period          = 0
+# cloudwatch_retention_in_days        = 1
+# create_cloudwatch_metric_alarms     = false
+# s3_enable_versioning                = false
+# ecr_max_image_count                 = 5
+
+# api_image    = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/video-processing-dev/api:latest"
+# worker_image = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/video-processing-dev/worker:latest"

@@ -87,15 +87,20 @@ If local Docker is unavailable, enable the API image pipeline instead:
 ```hcl
 enable_api_pipeline            = true
 api_pipeline_github_owner      = "your-github-user-or-org"
-api_pipeline_github_repository = "your-github-repo"
+api_pipeline_github_repository = "your-github-repository"
 api_pipeline_github_branch     = "main"
+
+enable_worker_pipeline            = true
+worker_pipeline_github_owner      = "your-github-user-or-org"
+worker_pipeline_github_repository = "your-github-repository"
+worker_pipeline_github_branch     = "main"
 ```
 
-The pipeline uses GitHub through AWS CodeStar Connections, builds the Docker image in CodeBuild, pushes both the commit tag and `latest` to ECR, and deploys the new image to the ECS API service.
+Terraform creates one AWS CodeConnections GitHub connection shared by the enabled API and worker pipelines. Each pipeline builds its Docker image in CodeBuild, pushes both the commit tag and `latest` to ECR, and deploys it to the matching ECS service.
 
-If `api_pipeline_codestar_connection_arn` is unset, Terraform creates the GitHub connection. After `terraform apply`, authorize the pending connection in the AWS console under Developer Tools > Connections. The first successful pipeline run will create the image in ECR, so local Docker is not required.
+After the first `terraform apply`, the connection is in `PENDING` state. Open the AWS console under Developer Tools > Settings > Connections, select the connection named `<project_name>-github`, and choose **Update pending connection** to authorize GitHub. The `github_connection_arn` Terraform output identifies it. The pipelines can run after this one-time authorization; the first successful build pushes the images to ECR, so local Docker is not required.
 
-This pipeline does not use CodeArtifact. In the monorepo, CodeBuild uses `api/buildspec.yml` or `worker/buildspec.yml`, builds the corresponding component directory, and emits `imagedefinitions.json` for the ECS deploy action.
+Both pipelines read the same monorepo. The API pipeline uses `api/buildspec.yml`, builds `api/`, and runs only when `api/**` changes. The worker pipeline does the same for `worker/`. AWS CodePipeline V2 path filters prevent an API-only commit from rebuilding and deploying the worker, and vice versa. Each build emits `imagedefinitions.json` for its ECS deploy action.
 
 ## Database secret
 
@@ -113,7 +118,7 @@ Use this output as the public API base URL:
 terraform output -raw api_gateway_invoke_url
 ```
 
-The ALB DNS output is internal when `alb_internal = true`.
+The ALB is always internal. API Gateway is the public entry point and reaches the ALB through a VPC Link.
 
 ## Monitoring and alerts
 
@@ -141,14 +146,6 @@ The dev environment keeps force-destroy behavior for convenient teardown. Produc
 
 ## Cost notes
 
-The private production topology is more expensive than the earlier low-cost layout because API Gateway, WAF, and multiple interface VPC endpoints are billable resources. To return to the cheapest topology, override:
-
-```hcl
-ecs_assign_public_ip  = true
-alb_internal          = false
-create_vpc_endpoints  = false
-enable_api_gateway    = false
-enable_waf            = false
-```
+The private production topology includes API Gateway, WAF, and multiple interface VPC endpoints, which are billable resources. The topology is intentionally fixed: there is no NAT gateway, the ALB remains internal, API Gateway is always present, and private AWS service access always uses VPC endpoints.
 
 Production defaults prioritize resilience: regular Fargate, two API tasks, larger FFmpeg workers, Multi-AZ RDS with 14-day backups and storage autoscaling, deletion protection, Container Insights, metric alarms, 30-day logs, S3 versioning, and non-destructive storage settings. Set `alarm_notification_email` and confirm the SNS subscription to receive alarm notifications.

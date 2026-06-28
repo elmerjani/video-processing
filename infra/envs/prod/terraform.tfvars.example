@@ -1,0 +1,52 @@
+project_name = "video-processing-prod"
+aws_region   = "eu-central-1"
+
+database_name     = "videoprocessing"
+database_username = "video_app"
+image_tag         = "latest"
+
+# Enable this to build the API image in AWS CodeBuild, push it to ECR, and deploy it to ECS.
+# Terraform creates one shared GitHub connection for the enabled image pipelines.
+# Authorize the pending connection once in the AWS console after the first apply.
+# enable_api_pipeline                  = true
+# api_pipeline_github_owner            = "your-github-user-or-org"
+# api_pipeline_github_repository       = "your-github-repository"
+# api_pipeline_github_branch           = "main"
+# enable_worker_pipeline                  = true
+# worker_pipeline_github_owner            = "your-github-user-or-org"
+# worker_pipeline_github_repository       = "your-github-repository"
+# worker_pipeline_github_branch           = "main"
+
+# api_image = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/video-processing-prod/api:latest"
+# worker_image = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/video-processing-prod/worker:latest"
+
+# Production-style network defaults: private ECS, internal ALB, API Gateway VPC Link,
+# WAF on the ALB, VPC endpoints instead of NAT, and durable storage defaults.
+# ecs_assign_public_ip                = false
+# api_gateway_stage_name              = "prod"
+# enable_waf                          = true
+# waf_rate_limit                      = 1000
+# s3_force_destroy                    = false
+# ecr_force_delete                    = false
+# pipeline_artifact_bucket_force_destroy = false
+
+# Production defaults use regular Fargate, redundant API tasks, larger FFmpeg workers,
+# Multi-AZ RDS, backups, deletion protection, alarms, and durable object storage.
+# ecs_capacity_provider               = "FARGATE"
+# api_desired_count                   = 2
+# api_cpu                             = 512
+# api_memory                          = 1024
+# worker_cpu                          = 2048
+# worker_memory                       = 4096
+# worker_autoscaling_max_capacity     = 10
+# db_instance_class                   = "db.t4g.small"
+# db_allocated_storage                = 20
+# db_max_allocated_storage            = 100
+# db_multi_az                         = true
+# db_backup_retention_period          = 14
+# db_deletion_protection              = true
+# cloudwatch_retention_in_days        = 30
+# create_cloudwatch_metric_alarms     = true
+# alarm_notification_email            = "oncall@example.com"
+# s3_enable_versioning                = true
+# ecr_max_image_count                 = 20
